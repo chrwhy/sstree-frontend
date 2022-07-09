@@ -10,6 +10,7 @@
             :remote-method="remoteMethod"
             :loading="loading"
             @clear="clear"
+            @change="change"
             @compositionupdate="compositionupdate"
         >
             <el-option
@@ -33,6 +34,7 @@ import { ref } from 'vue'
 const value = ref('')
 const loading = ref(false)
 const data = ref([])
+let cacheKeyword = ''
 
 const fuzzySearch = keyword => {
     axios({
@@ -40,7 +42,7 @@ const fuzzySearch = keyword => {
         url: `/search/?keyword=${keyword}`
     })
     .then(response => {
-        console.log('Response: ', response)
+        // console.log('Response: ', response)
         const { data: { result } } = response
         data.value = result.map(item => {
             return {
@@ -61,17 +63,22 @@ const remoteMethod = keyword => {
         return
     }
 
-    fuzzySearch(keyword)
+    cacheKeyword = keyword
 
-    // throttleFunc(keyword)
+    fuzzySearch(keyword)
 }
 
 const clear = () => {
     data.value = []
+    cacheKeyword = ''
 }
 
 const compositionupdate = keyword => {
-    fuzzySearch(keyword.data)
+    fuzzySearch(cacheKeyword + keyword.data)
+}
+
+const change = () => {
+    cacheKeyword = ''
 }
 
 </script>
