@@ -58,14 +58,16 @@ const fuzzySearch = keyword => {
 // })
 
 const remoteMethod = keyword => {
+    cacheKeyword = keyword
     if (!keyword) {
         data.value = []
         return
     }
 
-    cacheKeyword = keyword
 
     fuzzySearch(keyword)
+
+    // console.log('Remote Method: ', keyword)
 }
 
 const clear = () => {
@@ -73,8 +75,10 @@ const clear = () => {
     cacheKeyword = ''
 }
 
-const compositionupdate = keyword => {
-    fuzzySearch(cacheKeyword + keyword.data)
+const compositionupdate = event => {
+    fuzzySearch(cacheKeyword + event.data)
+
+    // console.log('compositionupdate: ', event.data)
 }
 
 const change = () => {
