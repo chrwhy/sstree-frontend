@@ -1,6 +1,7 @@
 <template>
-    <div class="fuzzy-search">
+    <div class="fuzzy-search" @keydown="keydown">
         <el-select
+            ref="fuzzySearchRef"
             v-model="value"
             filterable
             remote
@@ -10,6 +11,7 @@
             :remote-method="remoteMethod"
             :loading="loading"
             @clear="clear"
+            @input="input"
             @change="change"
             @compositionupdate="compositionupdate"
         >
@@ -34,12 +36,15 @@ import { ref } from 'vue'
 const value = ref('')
 const loading = ref(false)
 const data = ref([])
+const fuzzySearchRef = ref(null)
+let isSelectAll = false
+
 let cacheKeyword = ''
 
 const fuzzySearch = keyword => {
     axios({
         method: 'get',
-        url: `/search/?keyword=${keyword}`
+        url: `/search?keyword=${keyword}`
     })
     .then(response => {
         // console.log('Response: ', response)
@@ -58,14 +63,15 @@ const fuzzySearch = keyword => {
 // })
 
 const remoteMethod = keyword => {
+    cacheKeyword = keyword
     if (!keyword) {
         data.value = []
         return
     }
 
-    cacheKeyword = keyword
-
     fuzzySearch(keyword)
+
+    console.log('Remote Method: ', cacheKeyword)
 }
 
 const clear = () => {
@@ -73,14 +79,30 @@ const clear = () => {
     cacheKeyword = ''
 }
 
-const compositionupdate = keyword => {
-    fuzzySearch(cacheKeyword + keyword.data)
+const compositionupdate = event => {
+    if (isSelectAll) {
+        cacheKeyword = ''
+        isSelectAll = false
+    }
+    fuzzySearch(cacheKeyword + event.data)
+
+    console.log('compositionupdate: ', cacheKeyword + event.data)
 }
 
 const change = () => {
     cacheKeyword = ''
 }
 
+const input = value => {
+    console.log('Input: ', value)
+}
+
+const keydown = event => {
+    if (event.metaKey && event.shiftKey && event.code === 'ArrowLeft') {
+        isSelectAll = true
+    }
+    console.log('Event: ', event)
+}
 </script>
 
 <style scoped>
