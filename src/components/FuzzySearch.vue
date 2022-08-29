@@ -1,5 +1,5 @@
 <template>
-    <div class="fuzzy-search">
+    <div class="fuzzy-search" @keydown="keydown">
         <div class="fuzzy-search__type">
             <el-select v-model="type" placeholder="请选择">
                 <el-option
@@ -17,8 +17,10 @@
             reserve-keyword
             clearable
             placeholder="输入关键字"
+            :remote-method="remoteMethod"
             :loading="loading"
             @clear="clear"
+            @change="change"
             @compositionupdate="compositionupdate"
         >
             <el-option
@@ -41,6 +43,7 @@ import { ref } from 'vue'
 const value = ref('')
 const loading = ref(false)
 const data = ref([])
+let isSelectAll = false
 const options = [
     {
         label: '全部',
@@ -52,6 +55,8 @@ const options = [
     },
 ]
 const type = ref('')
+
+let cacheKeyword = ''
 
 const fuzzySearch = (keyword) => {
     let url = `/search?keyword=${keyword}`
@@ -77,23 +82,41 @@ const fuzzySearch = (keyword) => {
 //     fuzzySearch(keyword)
 // })
 
-// const remoteMethod = keyword => {
-//     if (!keyword) {
-//         data.value = []
-//         return
-//     }
+const remoteMethod = keyword => {
+    cacheKeyword = keyword
+    if (!keyword) {
+        data.value = []
+        return
+    }
 
-//     fuzzySearch(keyword)
+    fuzzySearch(keyword)
 
-//     // throttleFunc(keyword)
-// }
+    // throttleFunc(keyword)
+}
 
 const clear = () => {
     data.value = []
+    cacheKeyword = ''
 }
 
-const compositionupdate = (keyword) => {
-    fuzzySearch(keyword.data)
+const compositionupdate = event => {
+    if (isSelectAll) {
+        cacheKeyword = ''
+        isSelectAll = false
+    }
+    fuzzySearch(cacheKeyword + event.data)
+    console.log('compositionupdate: ', cacheKeyword + event.data)
+}
+
+const change = () => {
+    cacheKeyword = ''
+}
+
+const keydown = event => {
+    if (event.metaKey && event.shiftKey && event.code === 'ArrowLeft') {
+        isSelectAll = true
+    }
+    console.log('Event: ', event)
 }
 </script>
 
@@ -101,7 +124,7 @@ const compositionupdate = (keyword) => {
 .fuzzy-search {
     padding: 0 20%;
     display: flex;
-    margin-bottom: 20%;
+    margin-bottom: 50%;
 }
 
 .fuzzy-search__type .el-select {
