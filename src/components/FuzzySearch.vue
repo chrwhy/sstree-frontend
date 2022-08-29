@@ -43,19 +43,19 @@ const loading = ref(false)
 const data = ref([])
 const options = [
     {
-        label: '表格',
-        value: 'excel',
+        label: '全部',
+        value: 'default',
     },
     {
-        value: 'ppt',
-        label: '演示',
+        value: 'pdf',
+        label: 'sample',
     },
 ]
 const type = ref('')
 
 const fuzzySearch = (keyword) => {
-    let url = `/search/${keyword}`
-    if (type.value) url = `${url}?cate=${type.value}`
+    let url = `/search?keyword=${keyword}`
+    if (type.value) url = `${url}&cate=${type.value}`
     axios({
         method: 'get',
         url,
