@@ -50,8 +50,8 @@ const options = [
         value: 'default',
     },
     {
-        value: 'pdf',
-        label: 'sample',
+        value: 'sample',
+        label: 'PDF',
     },
 ]
 const type = ref('')
